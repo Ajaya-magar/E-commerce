@@ -1,57 +1,48 @@
-import { useState, useEffect } from 'react';
-import Card from './Card';
-import Fuse from 'fuse.js'
+import React, { useState } from 'react';
+import './App.css';
 
 function App() {
-  const [products, setProducts] = useState([]);
-  const [search, setSearch] = useState("");
-  const [searchOutput, setSearchOutput] = useState(products);
-  
-  const options = {
-    includeScore: true,
-    keys: ['name'],
-    threshold: 0.0
-  }
-  
-  const fuse = new Fuse(products, options);
+  const [todos, setTodos] = useState([]);
+  const [input, setInput] = useState('');
 
-    useEffect(() => {
-      async function fetchData() {
-        let response = await fetch("https://raw.githubusercontent.com/lukaszwos/4geeks-ecommerce/master/data.json");
-        let productData = await response.json();
-        setProducts(productData);
-        setSearchOutput(productData);
-      }
-      fetchData();
-    }, []);
+  const addTodo = () => {
+    if (input.trim()) {
+      setTodos([...todos, input.trim()]);
+      setInput('');
+    }
+  };
 
-
-
-  const filteredProducts = search.length === 0 ? products : 
-    products.filter(el => el.name.toLowerCase().includes(search.toLowerCase()));
-
+  const deleteTodo = (index) => {
+    const newTodos = [...todos];
+    newTodos.splice(index, 1);
+    setTodos(newTodos);
+  };
 
   return (
-    <>
-      <div className="m-3">
-            <label className="form-label">Find:</label>
-            <input 
-                className="form-control"
-                type="text"
-                value={search}
-                onChange={(e) => {setSearch(e.target.value)
-                  search.length > 1 ? setSearchOutput(products) : setSearchOutput(fuse.search(search).map(element => element.item))
-                }
-                
-                }/>
-      </div>
-      <div className="container">
-        {searchOutput.map((el) => 
-          <Card key={el.id} item={el} />)
-        }
-      </div>
-    </>
+    <div className="App">
+      <header className="App-header">
+        <h1>To-Do List</h1>
+        <div>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Add a new task"
+          />
+          <button onClick={addTodo}>Add</button>
+        </div>
+        <ul>
+          {todos.map((todo, index) => (
+            <li key={index}>
+              {todo}
+              <button onClick={() => deleteTodo(index)}>Delete</button>
+            </li>
+          ))}
+        </ul>
+      </header>
+    </div>
   );
 }
 
 export default App;
+
